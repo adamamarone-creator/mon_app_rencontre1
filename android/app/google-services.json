@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "311301799214",
+    "project_id": "senrencontre",
+    "storage_bucket": "senrencontre.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311301799214:android:a7f30938e8b3349ab98ebf",
+        "android_client_info": {
+          "package_name": "com.example.mon_app_rencontre"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANgooWAVqtcbqzgEhT4KuFA2h-nuM6ukA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
