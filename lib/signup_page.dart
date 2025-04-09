@@ -1,68 +1,93 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class SignupPage extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
+class SignupPage extends StatefulWidget {
+  @override
+  _SignupPageState createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
+  String? _errorMessage;
+
+  Future<void> _signup() async {
+    try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      final name = _nameController.text.trim();
+
+      if (email.isEmpty || password.isEmpty || name.isEmpty) {
+        setState(() {
+          _errorMessage = "Veuillez remplir tous les champs.";
+        });
+        return;
+      }
+
+      // Créer l'utilisateur avec Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Enregistrer les informations dans Firestore
+      final uid = userCredential.user!.uid;
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'fullName': name,
+        'email': email,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Rediriger vers la page d'accueil après l'inscription
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        if (e.code == 'email-already-in-use') {
+          _errorMessage = 'Cet email est déjà utilisé.';
+        } else {
+          _errorMessage = 'Erreur inconnue : ${e.message}';
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Créer un compte"),
-        backgroundColor: Colors.pink,
-      ),
+      appBar: AppBar(title: Text('S’inscrire')),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: "Nom complet"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer votre nom';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: "Adresse e-mail"),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || !value.contains('@')) {
-                    return 'Veuillez entrer un email valide';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: "Mot de passe"),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.length < 6) {
-                    return 'Mot de passe trop court';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // À faire : envoyer les infos vers Firebase plus tard
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Compte créé avec succès')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                ),
-                child: Text("Créer un compte", style: TextStyle(fontSize: 16)),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Nom complet'),
+            ),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Mot de passe'),
+              obscureText: true,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _signup,
+              child: Text('S’inscrire'),
+            ),
+            if (_errorMessage != null) ...[
+              SizedBox(height: 20),
+              Text(
+                _errorMessage!,
+                style: TextStyle(color: Colors.red),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

@@ -7,12 +7,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.2
   firebase_core: ^2.24.0
   firebase_auth: ^4.17.8
   firebase_auth_web: ^5.8.13
   cloud_firestore: ^4.17.5
-  image_picker: ^1.1.2
-  cupertino_icons: ^1.0.2
+  firebase_storage: ^11.0.16
+  image_picker: ^1.0.7
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/default_avatar.png
