@@ -18,19 +18,24 @@ class _LoginPageState extends State<LoginPage> {
 
       if (email.isEmpty || password.isEmpty) {
         setState(() {
+
           _errorMessage = "Veuillez remplir tous les champs.";
         });
         return;
       }
-
+      //
+        
+      //
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       // Si la connexion réussie, rediriger vers la page d'accueil
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/edit-profile');
     } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.code} - ${e.message}'); // 👈 AJOUTE ÇA
+      print("bonjour");
       setState(() {
         if (e.code == 'user-not-found') {
           _errorMessage = 'Aucun utilisateur trouvé pour cet email.';

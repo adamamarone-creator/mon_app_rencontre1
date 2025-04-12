@@ -1,7 +1,6 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -18,9 +17,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? _imageUrl;
 
   final picker = ImagePicker();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  // 👇 ID fictif pour simuler un utilisateur
+  final String fakeUid = 'testUid123';
 
   bool _isLoading = true;
 
@@ -31,8 +32,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _loadUserProfile() async {
-    final uid = _auth.currentUser!.uid;
-    final doc = await _db.collection('users').doc(uid).get();
+    final doc = await _db.collection('users').doc(fakeUid).get();
 
     if (doc.exists) {
       final data = doc.data()!;
@@ -57,16 +57,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _uploadImageAndSaveProfile() async {
-    final uid = _auth.currentUser!.uid;
+    // 👇 utilise l’UID fictif
+    final uid = fakeUid;
 
-    // Upload image si une nouvelle a été sélectionnée
     if (_imageFile != null) {
       final ref = _storage.ref().child('profile_images/$uid.jpg');
       await ref.putFile(_imageFile!);
       _imageUrl = await ref.getDownloadURL();
     }
 
-    // Sauvegarde Firestore
     await _db.collection('users').doc(uid).set({
       'fullName': _nameController.text,
       'bio': _bioController.text,
